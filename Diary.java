@@ -24,7 +24,7 @@ class CrudeDiary {
             this.EMBEDDED_DATABASE.open(true);
         } catch (SQLiteException error) {
             System.out.printf(
-                "An exception has occurred while opening file '%s' [%s]\n", 
+                "An exception has occurred while opening file '%s' [%s]\n",
                 this.EMBEDDED_DATABASE_FILEPATH, error);
             System.exit(1);
         }
@@ -33,14 +33,14 @@ class CrudeDiary {
         try {
             String queryTableNames = "SELECT name FROM sqlite_master WHERE type='table'";
             SQLiteStatement statement = this.EMBEDDED_DATABASE.prepare(queryTableNames);
-            
+
             List<String> tables = new ArrayList<>();
             while (statement.step()) {
-                tables.add((String) statement.columnValue(0));   
+                tables.add((String) statement.columnValue(0));
             }
 
             statement.dispose();
-            
+
             if (!tables.contains(this.TABLE_NAME)) {
                 String queryCreateTable = "CREATE TABLE 'entries' ('Number'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,'Entry' TEXT,'Date'	TEXT,'Time'	TEXT)";
                 SQLiteStatement statem_ = this.EMBEDDED_DATABASE.prepare(queryCreateTable);
@@ -51,11 +51,11 @@ class CrudeDiary {
 
         } catch (Exception error) {
             System.out.printf(
-                "An exception has occurred while accessing table '%s' [%s]\n", 
+                "An exception has occurred while accessing table '%s' [%s]\n",
                 this.TABLE_NAME, error);
             System.exit(1);
         }
-        
+
         // Retrieves column headers
         try {
             String queryHeaders = String.format("PRAGMA table_info(%s)", this.TABLE_NAME);
@@ -77,7 +77,7 @@ class CrudeDiary {
     public String toString() {
         return "Crude diary!";
     }
-    
+
     public int displaySpecificEntry(Scanner scanner) {
         int num = -1;
 
@@ -87,19 +87,19 @@ class CrudeDiary {
 
             num = InputWrapper.prompt(scanner, "Enter entry number: ", Integer.class);
             statement.bind(1, num);
-            
-            List<Object> row = new ArrayList<>();            
+
+            List<Object> row = new ArrayList<>();
             boolean hasData = false;
             while (statement.step()) {
                 row = new ArrayList<>();
-                
+
                 for (int index = 0; index < statement.columnCount(); index++) {
                     row.add(statement.columnValue(index));
                 }
-                
+
                 hasData = true;
             }
-            
+
             statement.dispose();
             if (!hasData) {
                 InputWrapper.prompt(scanner, "Your input may be invalid. Press Enter to continue. . . ", String.class);
@@ -125,7 +125,7 @@ class CrudeDiary {
                 index == 1 ? 35 :
                 index == 2 ? 15 : 10
             );
-            
+
             String item = String.format("%s", entry.get(index));
             if (item.equals("Number")) {
                 item = "#";
@@ -144,10 +144,10 @@ class CrudeDiary {
 
     public void getEntries() {
         List<List<Object>> rows = new ArrayList<>();
-        
+
         // Column names
         rows.add(this.HEADERS);
-        
+
         // Will produce a list of rows
         try {
             // Prepares query for getting all values
@@ -164,7 +164,7 @@ class CrudeDiary {
 
                 rows.add(row);
             }
-            
+
             // Ends query statement
             statement.dispose();
         } catch (Exception error) {
@@ -173,14 +173,14 @@ class CrudeDiary {
 
             System.out.printf("[Error] %s\n", error);
         }
-        
+
         // Processes the list of entries
         for (List<Object> entry : rows) {
             this.displaySpecificRow(entry);
         }
     }
 
-    public void addEntry(Map<String, String> newEntry) {        
+    public void addEntry(Map<String, String> newEntry) {
         List<String> limitedHeaderList = new ArrayList<>();
         List<String> placeholderList = new ArrayList<>();
 
@@ -196,7 +196,7 @@ class CrudeDiary {
             }
 
             limitedHeaderList.add(head_);
-            placeholderList.add("?");            
+            placeholderList.add("?");
         }
 
         String limitedHeaders = String.join(",", limitedHeaderList);
@@ -204,14 +204,14 @@ class CrudeDiary {
 
         try {
             String queryNewEntry = String.format(
-                "INSERT INTO '%s'(%s) VALUES (%s)", 
+                "INSERT INTO '%s'(%s) VALUES (%s)",
                 this.TABLE_NAME, limitedHeaders, placeholders
             );
             SQLiteStatement statement = this.EMBEDDED_DATABASE.prepare(queryNewEntry);
 
             for (int index = 0; index < statement.getBindParameterCount(); index++) {
                 String mapKey = limitedHeaderList.get(index);
-                statement.bind(index + 1, newEntry.get(mapKey));                
+                statement.bind(index + 1, newEntry.get(mapKey));
             }
 
             // Execute query statement
@@ -230,7 +230,7 @@ class CrudeDiary {
         LocalDateTime currentDateTime = LocalDateTime.now();
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy, MMMM dd");
         DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm a");
-        
+
         Map<String, String> info = Map.of(
             "Entry", InputWrapper.prompt(scanner, "Enter new entry: ", String.class),
             "Date", currentDateTime.format(dateFormat),
@@ -249,7 +249,7 @@ class CrudeDiary {
             statement.bind(2, entryNumber);
 
             statement.stepThrough();
-            statement.dispose();            
+            statement.dispose();
         } catch (Exception error) {
             System.out.printf("[Error] %s\n", error);
         }
@@ -351,7 +351,7 @@ public class Diary {
                 case 0:
                     shouldPersist = false;
                     break;
-            
+
                 default:
                     System.out.println("You have made an invalid selection!");
                     break;
@@ -359,7 +359,7 @@ public class Diary {
 
             System.out.println("");
         }
-        
+
         System.out.println("Thank you for using the app!");
         diary.closeDatabase();
         inputScanner.close();
@@ -367,7 +367,7 @@ public class Diary {
 
     // private static void test() {
     //     // int length = 10;
-    //     // String inputString = "Fuck";
+    //     // String inputString = "Fuuuuuuu";
 
     //     // String test = String.format("%1$-" + length + "s", inputString);
 
@@ -377,7 +377,7 @@ public class Diary {
 
     public static void main(String[] args) {
         console();
-        
+
         // test();
     }
 }
